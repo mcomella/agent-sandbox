@@ -1,0 +1,9 @@
+services:
+  claude:
+    image: claude-sandbox
+    command: claude
+    stdin_open: true
+    tty: true
+    volumes:
+      - ~/dev/claude-sandbox/settings/claude:/root/.claude
+      - ~/dev/claude-sandbox/settings/claude.json:/root/.claude.json
