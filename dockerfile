@@ -1,17 +1,15 @@
-FROM node:22-slim
+FROM debian:trixie-slim
 
-# Install system tools you want Claude to have access to
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    grep \
+    curl git build-essential \
+    unzip jq \
     ripgrep \
+    npm \
+    openjdk-21-jdk \
+    openjdk-25-jdk \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code globally
 RUN npm install -g @anthropic-ai/claude-code
 
-# Create workspace directory
 RUN mkdir /workspace
-
 WORKDIR /workspace
