@@ -2,17 +2,22 @@
 # Runs an agent in a sandbox at the given path.
 
 usage() {
-    echo "usage: run-agent.sh [--override-path-check] <repo-path>"
+    echo "usage: run-agent.sh [--override-path-check] [--shell] <repo-path>"
     echo ""
     echo "  --override-path-check  skip the ~/dev and -agent suffix requirements"
+    echo "  --shell                start in a shell instead of starting Claude directly"
 }
 
 OVERRIDE_PATH_CHECK=0
+SHELL_MODE=0
 REPO_PATH_ARG=""
 for arg in "$@"; do
     case "$arg" in
         --override-path-check)
             OVERRIDE_PATH_CHECK=1
+            ;;
+        --shell)
+            SHELL_MODE=1
             ;;
         *)
             REPO_PATH_ARG="$arg"
@@ -89,4 +94,4 @@ docker run -it --rm \
     -v "$CACHE_ROOT/openjfx:/root/.openjfx" \
     -v "$CACHE_ROOT/pip:/root/.cache/pip" \
     agent-sandbox \
-    bash -c '/usr/local/bin/claude'
+    bash -c "$([ "$SHELL_MODE" -eq 1 ] && echo 'exec bash' || echo '/usr/local/bin/claude')"
