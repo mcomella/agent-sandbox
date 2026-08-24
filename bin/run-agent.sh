@@ -88,4 +88,5 @@ docker run -it --rm \
     -v "$CACHE_ROOT/npm:/root/.npm" \
     -v "$CACHE_ROOT/openjfx:/root/.openjfx" \
     -v "$CACHE_ROOT/pip:/root/.cache/pip" \
-    agent-sandbox
+    agent-sandbox \
+    bash -c '/usr/local/bin/claude'
