@@ -22,6 +22,18 @@ Then **run** the agent on a given directory:
 ./bin/run-agent.sh <path>
 ```
 
+## Recommended directory layout for worktrees
+To allow agents to work in `git worktree`s, I recommend the following directory layout:
+```
+~/dev/dev-repo/         # your own checkout — the agent never touches this
+~/dev/dev-repo-agent/
+  bare/                 # bare clone, canonical repo for the agent's worktrees
+  feature-x/            # a worktree of bare/, checked out for the agent
+  feature-y/
+```
+
+The benefit of keeping a separate clone of the repository outside the sandbox (and regularly pulling changes into it) is that if the agent accidentally damages the .git metadata, it won't completely destroy the repository state.
+
 ## Potential improvements
 - Limit network access to further mitigate exfiltration risk
 - Use built-in agent sandboxing to add defense in depth
