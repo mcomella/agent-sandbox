@@ -14,7 +14,7 @@ I'm considering **increasing the scope** of the threat model due to the possibil
 ## Usage
 First, **build** the docker image:
 ```sh
-docker build -t claude-sandbox .
+docker build -t agent-sandbox .
 ```
 
 Then **run** the agent on a given directory:
