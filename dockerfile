@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y \
     curl git build-essential \
     unzip jq \
     ripgrep \
+    vim \
     npm \
     openjdk-21-jdk \
     openjdk-25-jdk \
