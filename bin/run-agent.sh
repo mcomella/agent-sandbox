@@ -2,19 +2,19 @@
 # Runs an agent in a sandbox at the given path.
 
 usage() {
-    echo "usage: run-agent.sh [--override-path-check] [--shell] <repo-path>"
+    echo "usage: run-agent.sh [--ignore-path-check] [--shell] <repo-path>"
     echo ""
-    echo "  --override-path-check  skip the ~/dev and -agent suffix requirements"
+    echo "  --ignore-path-check  skip the ~/dev and -agent suffix requirements"
     echo "  --shell                start in a shell instead of starting Claude directly"
 }
 
-OVERRIDE_PATH_CHECK=0
+IGNORE_PATH_CHECK=0
 SHELL_MODE=0
 REPO_PATH_ARG=""
 for arg in "$@"; do
     case "$arg" in
-        --override-path-check)
-            OVERRIDE_PATH_CHECK=1
+        --ignore-path-check)
+            IGNORE_PATH_CHECK=1
             ;;
         --shell)
             SHELL_MODE=1
@@ -41,7 +41,7 @@ set -euo pipefail
 REPO_PATH="$(realpath "$REPO_PATH_ARG")"
 REPO_NAME="$(basename "$REPO_PATH")"
 
-if [ "$OVERRIDE_PATH_CHECK" -eq 0 ]; then
+if [ "$IGNORE_PATH_CHECK" -eq 0 ]; then
     case "$REPO_PATH" in
         "$HOME/dev"/*) ;;
         *)
