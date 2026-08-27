@@ -51,12 +51,18 @@ if [ "$IGNORE_PATH_CHECK" -eq 0 ]; then
             ;;
     esac
 
+    PARENT_NAME="$(basename "$(dirname "$REPO_PATH")")"
     case "$REPO_NAME" in
         *-agent) ;;
         *)
-            echo "error: final directory must end with '-agent'"
-            usage
-            exit 1
+            case "$PARENT_NAME" in
+                *-agent) ;;
+                *)
+                    echo "error: final directory or its parent must end with '-agent'"
+                    usage
+                    exit 1
+                    ;;
+            esac
             ;;
     esac
 fi
