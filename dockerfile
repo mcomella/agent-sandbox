@@ -2,6 +2,7 @@ FROM debian:trixie-slim
 
 RUN apt-get update && apt-get install -y \
     curl git build-essential \
+    tmux \
     unzip jq \
     ripgrep \
     vim \
@@ -11,6 +12,3 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g @anthropic-ai/claude-code
-
-RUN mkdir /workspace
-WORKDIR /workspace

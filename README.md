@@ -1,18 +1,24 @@
 # agent-sandbox
 Run your AI agent in a sandboxed environment.
 
-Each execution of the script runs in its own container based on a shared docker image. Some directories are shared between all containers (container user home directory = Claude configuration files) and some are shared only with the specific repository you're working in (repository files, known dependency caches).
+Each execution runs in its own container based on a shared docker image. Some directories are shared between all containers (the container's home directory contains Claude configuration files) and some are shared only with the specific repository you're working in (repository files, known dependency caches).
 
 ### Motivation & threat model
-I'd probably use Docker Sandboxes but it doesn't support Intel Macs. I don't trust agents because they're effectively executing untrusted code. I'm skeptical of their self sandboxing. I'm more concerned about accidental bugs rather than a malicious adversary. As such, I isolate the rest of my filesystem to prevent the agent from accidentally deleting or exfiltrating personal information.
+I'm concerned that AI may naively (i.e. not maliciously):
+1. Read personal information and exfiltrate it
+1. Modify my system configuration
 
-I'm considering **increasing the scope** of the threat model due to the possibility of malicious adversaries from capabilities such as prompt injection and the feature to continue queries from your phone.
+Claude provides some sandbox tools: it automatically sandboxes itself to the current directory and provides [an optional wrapper that uses OS sandboxing](https://code.claude.com/docs/en/sandbox-environments#sandbox-runtime). However, these may have bugs due to the rapid pace of AI development and that macOS' `sandbox-exec` is deprecated so I prefer to use a 3rd party tool.
+
+I'd probably use [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/) to solve this problem but it doesn't support Intel Macs.
+
+**Out of scope:** malicious intent such as a malicious AI, prompt injection, AI installation and execution of untrusted code, or malicious use of [Claude Remote Control](https://code.claude.com/docs/en/remote-control).
 
 ## Prerequisites
 - Docker Desktop (or equivalent)
 
 ## Usage
-First, **build** the docker image:
+First, **build** the shared docker image:
 ```sh
 docker build -t agent-sandbox .
 ```
@@ -22,22 +28,29 @@ Then **run** the agent on a given directory:
 ./bin/run-agent.sh <path>
 ```
 
-## Recommended directory layout for worktrees
-To allow agents to work in `git worktree`s, I recommend the following directory layout:
-```
-~/dev/dev-repo/         # your own checkout — the agent never touches this
-~/dev/dev-repo-agent/
-  bare/                 # bare clone, canonical repo for the agent's worktrees
-  feature-x/            # a worktree of bare/, checked out for the agent
-  feature-y/
-```
+To discourage use in unintended directories, the script expects the given path to be a descendent of `~/dev` and to end in `-agent`. To ignore this check, add `--ignore-path-check`.
 
-The benefit of keeping a separate clone of the repository outside the sandbox (and regularly pulling changes into it) is that if the agent accidentally damages the .git metadata, it won't completely destroy the repository state.
+The program uses the following directories:
+- `~/.config/agent-sandbox`: Claude and other configuration files
+- `~/.cache/agent-sandbox`: cached files that can be regenerated, e.g. application dependencies
+
+### Recommended usage
+Keep a **separate clone** of your repository, either in GitHub or on your drive, so you can verify unintended changes (e.g. the AI rewrites the history of the `main` branch).
+
+To **develop using multiple agents**, either:
+1. Use Claude's agents view
+2. Add the `--shell` flag, start `tmux`, and start each parallel Claude using a separate worktree: `claude -w <worktree-name>`
+
+To provide **configuration files** in the sandbox such as a `.gitconfig` so your agent commits with your username, add them to `~/.config/agent-sandbox/home`, laying it out like a home directory.
+
+## Limitations
+- To update Claude Code, you need to rebuild the Docker container
+- Voice mode doesn't work. I record my voice in https://claude.ai and copy-paste it back
 
 ## Potential improvements
 - Limit network access to further mitigate exfiltration risk
 - Use built-in agent sandboxing to add defense in depth
 
 Docker pain points:
-- Reduced performance, uses a lot of memory: 2.6 GiB just started with one Claude attached. I remember seeing 6+ at one point.
+- Reduced performance, uses a lot of memory: 2.6 GiB just started with one Claude attached
 - Unknown shell integration so it's difficult to configure certain commands guest->host (copy-paste, voice)

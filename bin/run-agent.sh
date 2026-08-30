@@ -91,7 +91,8 @@ docker run -it --rm \
     --cap-drop ALL \
     --security-opt no-new-privileges \
     --read-only --tmpfs /tmp \
-    -v "${REPO_PATH}:/workspace:rw" \
+    -v "${REPO_PATH}:${REPO_PATH}:rw" \
+    -w "${REPO_PATH}" \
     -v "${CLAUDE_HOME}:/root:rw" \
     -v "$CACHE_ROOT/cargo:/root/.cargo/registry" \
     -v "$CACHE_ROOT/gradle:/root/.gradle" \
